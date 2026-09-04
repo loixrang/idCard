@@ -20,9 +20,9 @@ runs:
       run: npm ci
       shell: bash
 
-    # - name: Lint
-    #   run: npm run lint
-    #   shell: bash
+    - name: Lint
+      run: npm run lint
+      shell: bash
 
     - name: Build
       run: npm run build
