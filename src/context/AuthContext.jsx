@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authService } from "@/services/auth.service";
 import { clearSession, readSession, saveSession } from "@/services/api";
@@ -9,33 +9,28 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const router = useRouter();
-  const [session, setSession] = useState(null);
-  const [ready, setReady] = useState(false);
+  const [session, setSession] = useState(() => readSession());
+  const [ready, setReady] = useState(true);
 
-  useEffect(() => {
-    setSession(readSession());
-    setReady(true);
-  }, []);
-
-  async function login(payload) {
+  const login = useCallback(async (payload) => {
     const data = await authService.login(payload);
     saveSession(data);
     setSession(data);
     router.push("/dashboard");
-  }
+  }, [router]);
 
-  async function registerSchool(payload) {
+  const registerSchool = useCallback(async (payload) => {
     const data = await authService.registerSchool(payload);
     saveSession(data);
     setSession(data);
     router.push("/dashboard");
-  }
+  }, [router]);
 
-  function logout() {
+  const logout = useCallback(() => {
     clearSession();
     setSession(null);
     router.push("/login");
-  }
+  }, [router]);
 
   const value = useMemo(
     () => ({
@@ -49,7 +44,7 @@ export function AuthProvider({ children }) {
       registerSchool,
       logout
     }),
-    [ready, session]
+    [ready, session, login, registerSchool, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

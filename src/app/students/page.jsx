@@ -16,8 +16,10 @@ export default function StudentsPage() {
   const [selected, setSelected] = useState(null);
   const [modal, setModal] = useState(null);
   const students = useAsyncData(() => studentsService.list({ page, limit: 25 }), [page]);
-  const rows = students.data?.students || [];
-  const filtered = useMemo(() => rows.filter((s) => [s.name, s.admissionNumber, s.class].join(" ").toLowerCase().includes(query.toLowerCase())), [rows, query]);
+  const filtered = useMemo(() => {
+    const rows = students.data?.students || [];
+    return rows.filter((s) => [s.name, s.admissionNumber, s.class].join(" ").toLowerCase().includes(query.toLowerCase()));
+  }, [students.data, query]);
   const active = selected || filtered[0];
 
   async function unregister(student) {
